@@ -122,6 +122,30 @@ export interface AgentConfig {
   apiKey: string
 }
 
+export interface PublicAgentConfig {
+  id: string
+  name: string
+  appId: string
+}
+
+export interface ServerAgentConfig extends PublicAgentConfig {
+  apiKey: string
+}
+
+export interface AuthUser {
+  username: string
+  role: string
+}
+
+export interface AuthenticatedUser extends AuthUser {
+  agents: PublicAgentConfig[]
+}
+
+export interface AppSession {
+  user: AuthUser
+  agents: PublicAgentConfig[]
+}
+
 export enum Resolution {
   low = 'low',
   high = 'high',

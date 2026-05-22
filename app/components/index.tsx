@@ -1,4 +1,5 @@
 'use client'
+import '@/i18n/i18next-config'
 import type { FC } from 'react'
 import React, { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -20,10 +21,11 @@ import useBreakpoints, { MediaType } from '@/hooks/use-breakpoints'
 import Loading from '@/app/components/base/loading'
 import { replaceVarWithValues, userInputsFormToPromptVariables } from '@/utils/prompt'
 import AppUnavailable from '@/app/components/app-unavailable'
-import { AGENT_CONFIGS, APP_INFO, isShowPrompt, promptTemplate } from '@/config'
+import { APP_INFO, isShowPrompt, promptTemplate, SELECTED_AGENT_STORAGE_KEY } from '@/config'
 import type { Annotation as AnnotationType } from '@/types/log'
 import { getSelectedAgent, getStoredSelectedAgentAppId, setStoredSelectedAgentAppId } from '@/utils/agent'
 import { addFileInfos, sortAgentSorts } from '@/utils/tools'
+import type { AppSession } from '@/types/app'
 
 const DEFAULT_VISION_CONFIG: VisionSettings = {
   enabled: false,
@@ -34,20 +36,22 @@ const DEFAULT_VISION_CONFIG: VisionSettings = {
 
 export interface IMainProps {
   params: any
+  session: AppSession
 }
 
-const Main: FC<IMainProps> = () => {
+const Main: FC<IMainProps> = ({ session }) => {
   const { t } = useTranslation()
   const media = useBreakpoints()
   const isMobile = media === MediaType.mobile
+  const agents = session.agents
   const [selectedAgentAppId, setSelectedAgentAppId] = useState<string>('')
   const [isAgentSelectionReady, setIsAgentSelectionReady] = useState(false)
   const [isAgentPanelCollapsed, setIsAgentPanelCollapsed] = useState(false)
 
-  const selectedAgent = getSelectedAgent(selectedAgentAppId)
+  const selectedAgent = getSelectedAgent(agents, selectedAgentAppId)
   const currentAppId = selectedAgent?.appId || ''
-  const hasSetAppConfig = !!selectedAgent?.appId && !!selectedAgent?.apiKey
-  const hasMultipleAgents = AGENT_CONFIGS.length > 1
+  const hasSetAppConfig = !!selectedAgent?.appId
+  const hasMultipleAgents = agents.length > 1
 
   /*
   * app info
@@ -62,9 +66,9 @@ const Main: FC<IMainProps> = () => {
   const [fileConfig, setFileConfig] = useState<FileUpload | undefined>()
 
   useEffect(() => {
-    setSelectedAgentAppId(getStoredSelectedAgentAppId())
+    setSelectedAgentAppId(getStoredSelectedAgentAppId(agents))
     setIsAgentSelectionReady(true)
-  }, [])
+  }, [agents])
 
   useEffect(() => {
     const title = selectedAgent?.name || APP_INFO?.title
@@ -182,9 +186,22 @@ const Main: FC<IMainProps> = () => {
     abortController?.abort()
     setAbortController(null)
     setRespondingFalse()
-    setStoredSelectedAgentAppId(nextAgentAppId)
+    setStoredSelectedAgentAppId(nextAgentAppId, agents)
     setSelectedAgentAppId(nextAgentAppId)
     hideSidebar()
+  }
+
+  const handleLogout = async () => {
+    try {
+      await fetch('/api/auth/logout', {
+        method: 'POST',
+        credentials: 'include',
+      })
+    }
+    finally {
+      globalThis.localStorage?.removeItem(SELECTED_AGENT_STORAGE_KEY)
+      globalThis.location.href = '/login'
+    }
   }
 
   const handleConversationIdChange = (id: string) => {
@@ -683,15 +700,18 @@ const Main: FC<IMainProps> = () => {
   }
 
   const renderAgentPanel = () => {
-    if (!hasMultipleAgents || !selectedAgent) { return null }
+    if (!agents.length || !selectedAgent) { return null }
 
     return (
       <AgentPanel
-        agents={AGENT_CONFIGS}
+        agents={agents}
         currentAgentAppId={currentAppId}
         collapsed={isAgentPanelCollapsed}
+        currentUsername={session.user.username}
+        currentRole={session.user.role}
         onToggleCollapsed={() => setIsAgentPanelCollapsed(value => !value)}
         onSelectAgent={handleAgentChange}
+        onLogout={handleLogout}
       />
     )
   }
@@ -709,7 +729,7 @@ const Main: FC<IMainProps> = () => {
   }
 
   if (appUnavailable) {
-    return <AppUnavailable isUnknownReason={isUnknownReason} errMessage={!hasSetAppConfig ? 'Please set NEXT_PUBLIC_AGENT_CONFIGS or NEXT_PUBLIC_APP_ID/NEXT_PUBLIC_APP_KEY in your environment.' : ''} />
+    return <AppUnavailable isUnknownReason={isUnknownReason} errMessage={!hasSetAppConfig ? t('app.auth.noAuthorizedAgents') : ''} />
   }
 
   if (!isAgentSelectionReady || !currentAppId || !APP_INFO || !promptConfig) { return <Loading type='app' /> }

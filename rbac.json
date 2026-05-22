@@ -1,0 +1,26 @@
+{
+    "defaultPassword": "123456",
+    "roles": {
+        "admin": {
+            "agents": [
+                "agent-1",
+                "agent-2"
+            ]
+        },
+        "user": {
+            "agents": [
+                "agent-1"
+            ]
+        }
+    },
+    "users": [
+        {
+            "username": "admin",
+            "role": "admin"
+        },
+        {
+            "username": "user",
+            "role": "user"
+        }
+    ]
+}

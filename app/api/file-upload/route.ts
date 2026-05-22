@@ -1,16 +1,12 @@
 import type { NextRequest } from 'next/server'
-import { getClient, getInfo } from '@/app/api/utils/common'
+import { getRequestContext, withApiErrorHandling } from '@/app/api/utils/common'
 
 export async function POST(request: NextRequest) {
-  try {
-    const client = getClient(request)
+  return withApiErrorHandling(async () => {
+    const { client, user } = await getRequestContext(request)
     const formData = await request.formData()
-    const { user } = getInfo(request)
     formData.append('user', user)
     const res = await client.fileUpload(formData)
     return new Response(res.data.id as any)
-  }
-  catch (e: any) {
-    return new Response(e.message)
-  }
+  })
 }

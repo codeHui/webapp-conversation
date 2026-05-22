@@ -2,7 +2,7 @@ import { AGENT_ID_HEADER_NAME, API_PREFIX } from '@/config'
 import Toast from '@/app/components/base/toast'
 import type { AnnotationReply, MessageEnd, MessageReplace, ThoughtItem } from '@/app/components/chat/type'
 import type { VisionFile } from '@/types/app'
-import { getStoredSelectedAgentAppId } from '@/utils/agent'
+import { getStoredSelectedAgentAppIdValue } from '@/utils/agent'
 
 const TIME_OUT = 100000
 
@@ -23,6 +23,20 @@ const baseOptions = {
   redirect: 'follow',
 }
 
+const redirectToLogin = () => {
+  if (typeof window === 'undefined') { return }
+  if (globalThis.location.pathname === '/login') { return }
+  globalThis.location.href = '/login'
+}
+
+const notifyErrorFromResponse = (response: Response, fallbackMessage: string) => {
+  void response.clone().json().then((data: any) => {
+    Toast.notify({ type: 'error', message: data?.message || fallbackMessage })
+  }).catch(() => {
+    Toast.notify({ type: 'error', message: fallbackMessage })
+  })
+}
+
 const buildRequestHeaders = (headers?: HeadersInit) => {
   const requestHeaders = new Headers(baseOptions.headers)
 
@@ -32,7 +46,7 @@ const buildRequestHeaders = (headers?: HeadersInit) => {
     })
   }
 
-  const selectedAgentAppId = getStoredSelectedAgentAppId()
+  const selectedAgentAppId = getStoredSelectedAgentAppIdValue()
 
   if (selectedAgentAppId) {
     requestHeaders.set(AGENT_ID_HEADER_NAME, selectedAgentAppId)
@@ -310,19 +324,18 @@ const baseFetch = (url: string, fetchOptions: any, { needAllResponseContent }: I
           // Error handler
           if (!/^(2|3)\d{2}$/.test(res.status)) {
             try {
-              const bodyJson = res.json()
               switch (res.status) {
                 case 401: {
-                  Toast.notify({ type: 'error', message: 'Invalid token' })
-                  return
+                  notifyErrorFromResponse(resClone, 'Authentication is required.')
+                  redirectToLogin()
+                  break
+                }
+                case 403: {
+                  notifyErrorFromResponse(resClone, 'You do not have permission to access this agent.')
+                  break
                 }
                 default:
-                  // eslint-disable-next-line no-new
-                  new Promise(() => {
-                    bodyJson.then((data: any) => {
-                      Toast.notify({ type: 'error', message: data.message })
-                    })
-                  })
+                  notifyErrorFromResponse(resClone, 'Server Error')
               }
             }
             catch (e) {
@@ -378,7 +391,10 @@ export const upload = (fetchOptions: any): Promise<any> => {
     xhr.onreadystatechange = function () {
       if (xhr.readyState === 4) {
         if (xhr.status === 200) { resolve({ id: xhr.response }) }
-        else { reject(xhr) }
+        else {
+          if (xhr.status === 401) { redirectToLogin() }
+          reject(xhr)
+        }
       }
     }
     xhr.upload.onprogress = options.onprogress
@@ -416,12 +432,8 @@ export const ssePost = (
   globalThis.fetch(urlWithPrefix, options)
     .then((res: any) => {
       if (!/^(2|3)\d{2}$/.test(res.status)) {
-        // eslint-disable-next-line no-new
-        new Promise(() => {
-          res.json().then((data: any) => {
-            Toast.notify({ type: 'error', message: data.message || 'Server Error' })
-          })
-        })
+        notifyErrorFromResponse(res, 'Server Error')
+        if (res.status === 401) { redirectToLogin() }
         onError?.('Server Error')
         return
       }

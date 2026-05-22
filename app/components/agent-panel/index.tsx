@@ -2,19 +2,24 @@
 import type { FC } from 'react'
 import React from 'react'
 import {
+  ArrowRightOnRectangleIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
   CpuChipIcon,
+  UserCircleIcon,
 } from '@heroicons/react/24/outline'
 import { useTranslation } from 'react-i18next'
-import type { AgentConfig } from '@/types/app'
+import type { PublicAgentConfig } from '@/types/app'
 
 export interface IAgentPanelProps {
-  agents: AgentConfig[]
+  agents: PublicAgentConfig[]
   currentAgentAppId: string
   collapsed: boolean
+  currentUsername: string
+  currentRole: string
   onToggleCollapsed: () => void
   onSelectAgent: (appId: string) => void
+  onLogout: () => void
 }
 
 const getAgentInitials = (name: string) => {
@@ -30,8 +35,11 @@ const AgentPanel: FC<IAgentPanelProps> = ({
   agents,
   currentAgentAppId,
   collapsed,
+  currentUsername,
+  currentRole,
   onToggleCollapsed,
   onSelectAgent,
+  onLogout,
 }) => {
   const { t } = useTranslation()
 
@@ -104,6 +112,33 @@ const AgentPanel: FC<IAgentPanelProps> = ({
             </button>
           )
         })}
+      </div>
+
+      <div className='border-t border-gray-100 bg-gray-50/80 p-2'>
+        <div className={[
+          'flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-2.5 py-2',
+          collapsed ? 'justify-center px-0' : '',
+        ].join(' ')}>
+          <div className='flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gray-100 text-gray-500'>
+            <UserCircleIcon className='h-6 w-6' />
+          </div>
+
+          {!collapsed && (
+            <div className='min-w-0 flex-1'>
+              <div className='truncate text-sm font-medium text-gray-900'>{currentUsername}</div>
+              <div className='truncate text-xs text-gray-500'>{currentRole}</div>
+            </div>
+          )}
+
+          <button
+            type='button'
+            title={t('app.auth.logout')}
+            onClick={onLogout}
+            className='flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-500 transition hover:border-gray-300 hover:bg-gray-50 hover:text-gray-700'
+          >
+            <ArrowRightOnRectangleIcon className='h-4 w-4' />
+          </button>
+        </div>
       </div>
     </div>
   )

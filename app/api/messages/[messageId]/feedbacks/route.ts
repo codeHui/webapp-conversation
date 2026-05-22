@@ -1,17 +1,18 @@
 import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
-import { getClient, getInfo } from '@/app/api/utils/common'
+import { getRequestContext, withApiErrorHandling } from '@/app/api/utils/common'
 
 export async function POST(request: NextRequest, { params }: {
   params: Promise<{ messageId: string }>
 }) {
-  const client = getClient(request)
-  const body = await request.json()
-  const {
-    rating,
-  } = body
-  const { messageId } = await params
-  const { user } = getInfo(request)
-  const { data } = await client.messageFeedback(messageId, rating, user)
-  return NextResponse.json(data)
+  return withApiErrorHandling(async () => {
+    const { client, user } = await getRequestContext(request)
+    const body = await request.json()
+    const {
+      rating,
+    } = body
+    const { messageId } = await params
+    const { data } = await client.messageFeedback(messageId, rating, user)
+    return NextResponse.json(data)
+  })
 }

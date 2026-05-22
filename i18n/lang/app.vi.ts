@@ -26,6 +26,25 @@ const translation = {
     privacyPolicyRight:
       ' được cung cấp bởi nhà phát triển ứng dụng.',
   },
+  auth: {
+    logout: 'Đăng xuất',
+    noAuthorizedAgents: 'Không có agent nào được phép cho tài khoản này.',
+    loginRequired: 'Tên người dùng và mật khẩu là bắt buộc.',
+    loginFailed: 'Không thể đăng nhập. Vui lòng kiểm tra tài khoản trong rbac.json.',
+    secureGateway: 'Cổng bảo mật',
+    signInTitle: 'Đăng nhập vào cổng Dify',
+    signInDescription: 'Xác thực được kiểm tra cục bộ bằng JWT và RBAC trước khi mọi yêu cầu được chuyển tiếp tới Dify.',
+    demoAccount: 'Tài khoản',
+    adminAccess: 'Truy cập Agent 1 và Agent 2.',
+    userAccess: 'Chỉ truy cập Agent 1.',
+    welcomeBack: 'Chào mừng quay lại',
+    signIn: 'Đăng nhập',
+    passwordHint: 'Các tài khoản được quản lý trong rbac.json. Mật khẩu mặc định là 123456.',
+    username: 'Tên người dùng',
+    usernamePlaceholder: 'Nhập tên tài khoản',
+    password: 'Mật khẩu',
+    signingIn: 'Đang đăng nhập...',
+  },
   errorMessage: {
     valueOfVarRequired: 'Giá trị của biến không thể để trống',
     waitForResponse:

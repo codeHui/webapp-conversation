@@ -26,6 +26,25 @@ const translation = {
     privacyPolicyRight:
       ' fournie par le développeur de l\'application.',
   },
+  auth: {
+    logout: 'Se déconnecter',
+    noAuthorizedAgents: 'Aucun agent autorisé n’est disponible pour ce compte.',
+    loginRequired: 'Le nom d’utilisateur et le mot de passe sont requis.',
+    loginFailed: 'Connexion impossible. Vérifiez le compte dans rbac.json.',
+    secureGateway: 'Passerelle sécurisée',
+    signInTitle: 'Se connecter à la passerelle Dify',
+    signInDescription: 'L’authentification est validée localement avec JWT et RBAC avant tout transfert vers Dify.',
+    demoAccount: 'Compte',
+    adminAccess: 'Accès à Agent 1 et Agent 2.',
+    userAccess: 'Accès à Agent 1 uniquement.',
+    welcomeBack: 'Bon retour',
+    signIn: 'Se connecter',
+    passwordHint: 'Les comptes sont gérés dans rbac.json. Le mot de passe par défaut est 123456.',
+    username: 'Nom d’utilisateur',
+    usernamePlaceholder: 'Saisissez le nom du compte',
+    password: 'Mot de passe',
+    signingIn: 'Connexion en cours...',
+  },
   errorMessage: {
     valueOfVarRequired: 'La valeur des variables ne peut pas être vide',
     waitForResponse:

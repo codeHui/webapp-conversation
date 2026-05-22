@@ -26,6 +26,25 @@ const translation = {
     privacyPolicyRight:
       ' をお読みください。',
   },
+  auth: {
+    logout: 'ログアウト',
+    noAuthorizedAgents: 'このアカウントに利用可能なエージェントがありません。',
+    loginRequired: 'ユーザー名とパスワードは必須です。',
+    loginFailed: 'ログインできませんでした。rbac.json のアカウント設定を確認してください。',
+    secureGateway: 'セキュアゲートウェイ',
+    signInTitle: 'Dify ゲートウェイにサインイン',
+    signInDescription: 'すべてのリクエストは Dify に転送される前に、ローカルの JWT と RBAC で検証されます。',
+    demoAccount: 'アカウント',
+    adminAccess: 'Agent 1 と Agent 2 にアクセスできます。',
+    userAccess: 'Agent 1 のみアクセスできます。',
+    welcomeBack: 'お帰りなさい',
+    signIn: 'サインイン',
+    passwordHint: 'アカウントは rbac.json で管理されます。デフォルトのパスワードは 123456 です。',
+    username: 'ユーザー名',
+    usernamePlaceholder: 'アカウント名を入力してください',
+    password: 'パスワード',
+    signingIn: 'サインイン中...',
+  },
   errorMessage: {
     valueOfVarRequired: '変数の値は空にできません',
     waitForResponse:

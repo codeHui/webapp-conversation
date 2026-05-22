@@ -1,15 +1,30 @@
-import type { FC } from 'react'
 import React from 'react'
+import { cookies } from 'next/headers'
+import { redirect } from 'next/navigation'
 
-import type { IMainProps } from '@/app/components'
 import Main from '@/app/components'
+import { AUTH_COOKIE_NAME } from '@/config'
+import { serializeAppSession, verifyAuthToken } from '@/utils/auth'
 
-const App: FC<IMainProps> = ({
+const App = async ({
   params,
 }: any) => {
-  return (
-    <Main params={params} />
-  )
+  const authToken = (await cookies()).get(AUTH_COOKIE_NAME)?.value
+
+  if (!authToken) {
+    redirect('/login')
+  }
+
+  try {
+    const authenticatedUser = await verifyAuthToken(authToken)
+
+    return (
+      <Main params={params} session={serializeAppSession(authenticatedUser)} />
+    )
+  }
+  catch {
+    redirect('/login')
+  }
 }
 
-export default React.memo(App)
+export default App

@@ -26,6 +26,25 @@ const translation = {
     privacyPolicyRight:
       ' provided by the app developer.',
   },
+  auth: {
+    logout: 'Log out',
+    noAuthorizedAgents: 'No authorized agents are available for this account.',
+    loginRequired: 'Username and password are required.',
+    loginFailed: 'Unable to sign in. Please verify the account in rbac.json.',
+    secureGateway: 'Secure gateway',
+    signInTitle: 'Sign in to the Dify gateway',
+    signInDescription: 'Authentication is handled locally through JWT and RBAC before any request is forwarded to Dify.',
+    demoAccount: 'Account',
+    adminAccess: 'Access to Agent 1 and Agent 2.',
+    userAccess: 'Access to Agent 1 only.',
+    welcomeBack: 'Welcome back',
+    signIn: 'Sign in',
+    passwordHint: 'Accounts are managed in rbac.json. The default password is 123456.',
+    username: 'Username',
+    usernamePlaceholder: 'Enter your account name',
+    password: 'Password',
+    signingIn: 'Signing in...',
+  },
   errorMessage: {
     valueOfVarRequired: 'Variables value can not be empty',
     waitForResponse:

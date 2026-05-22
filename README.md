@@ -2,6 +2,8 @@
 
 This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
+The app now uses a local JWT-authenticated backend proxy for Dify. The browser only talks to the Next.js API routes, and agent API keys stay on the server.
+
 ## Config App
 
 Create a file named `.env.local` in the current directory and copy the contents from `.env.example`. Setting the following content:
@@ -14,6 +16,9 @@ NEXT_PUBLIC_API_URL=
 # The appId is the unique identifier from the Dify app URL.
 # The apiKey is generated from the app's API Access page.
 NEXT_PUBLIC_AGENT_CONFIGS=[{"name":"Agent 1","appId":"your-first-app-id","apiKey":"app-your-first-key"},{"name":"Agent 2","appId":"your-second-app-id","apiKey":"app-your-second-key"}]
+
+# Optional but recommended in production. Used to sign the local JWT auth cookie.
+JWT_SECRET=replace-this-in-production
 ```
 
 Single-agent mode is still supported as a fallback:
@@ -24,7 +29,37 @@ NEXT_PUBLIC_APP_ID=your-app-id
 NEXT_PUBLIC_APP_KEY=app-your-app-key
 ```
 
-When multiple agents are configured, the app renders a collapsible panel on the far left so users can switch between agents. Conversation continuity remains scoped by Dify app ID.
+When multiple agents are configured, the app renders a collapsible panel on the far left so users can switch between agents. Conversation continuity remains scoped by Dify app ID, and the visible agent list is filtered by RBAC.
+
+## RBAC
+
+Edit [rbac.json](./rbac.json) directly to manage roles and accounts. The backend reloads this file at request time.
+
+```json
+{
+  "defaultPassword": "123456",
+  "roles": {
+    "admin": {
+      "agents": ["agent-1", "agent-2"]
+    },
+    "user": {
+      "agents": ["agent-1"]
+    }
+  },
+  "users": [
+    { "username": "admin", "role": "admin" },
+    { "username": "user", "role": "user" }
+  ]
+}
+```
+
+Notes:
+
+- `defaultPassword` is the shared password for every configured account.
+- `roles.<role>.agents` can reference an agent by generated ID, agent name, or Dify `appId`.
+- If you do not provide an explicit `id` in `NEXT_PUBLIC_AGENT_CONFIGS`, agent IDs are generated from the agent name. For the default example above, `Agent 1 -> agent-1` and `Agent 2 -> agent-2`.
+- The default accounts are `admin / 123456` and `user / 123456`.
+- The backend also accepts `Authorization: Bearer <jwt>` headers, but the built-in login flow stores the JWT in an HTTP-only cookie.
 
 Config more in `config/index.ts` file:
 
@@ -56,7 +91,7 @@ pnpm install
 Then, run the development server:
 
 ```bash
-npm run dev （recommanded for AI, supported by default）
+npm run dev
 # or
 yarn dev
 # or

@@ -6,9 +6,32 @@ import { match } from '@formatjs/intl-localematcher'
 import type { Locale } from '.'
 import { i18n } from '.'
 
+const localeToLanguageTag = (locale: string) => {
+  if (locale === 'zh-Hans') { return 'zh-CN' }
+  return locale
+}
+
+const languageTagToLocale = (languageTag: string) => {
+  if (languageTag === 'zh-CN') { return 'zh-Hans' }
+  return languageTag
+}
+
+const isValidLanguageTag = (languageTag: string) => {
+  if (!languageTag || languageTag === '*') { return false }
+
+  try {
+    Intl.getCanonicalLocales(languageTag)
+    return true
+  }
+  catch {
+    return false
+  }
+}
+
 export const getLocaleOnServer = async (): Promise<Locale> => {
   // @ts-expect-error locales are readonly
   const locales: string[] = i18n.locales
+  const supportedLanguageTags = locales.map(localeToLanguageTag)
 
   let languages: string[] | undefined
   // get locale from cookie
@@ -24,7 +47,13 @@ export const getLocaleOnServer = async (): Promise<Locale> => {
     languages = new Negotiator({ headers: negotiatorHeaders }).languages()
   }
 
-  // match locale
-  const matchedLocale = match(languages, locales, i18n.defaultLocale) as Locale
-  return matchedLocale
+  const sanitizedLanguages = languages
+    .map(localeToLanguageTag)
+    .filter(isValidLanguageTag)
+
+  const matchedLanguageTag = sanitizedLanguages.length > 0
+    ? match(sanitizedLanguages, supportedLanguageTags, localeToLanguageTag(i18n.defaultLocale))
+    : localeToLanguageTag(i18n.defaultLocale)
+
+  return languageTagToLocale(matchedLanguageTag) as Locale
 }

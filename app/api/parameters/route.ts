@@ -1,17 +1,13 @@
 import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
-import { getClient, getInfo, setSession } from '@/app/api/utils/common'
+import { getRequestContext, setSession, withApiErrorHandling } from '@/app/api/utils/common'
 
 export async function GET(request: NextRequest) {
-  const client = getClient(request)
-  const { sessionId, user } = getInfo(request)
-  try {
+  return withApiErrorHandling(async () => {
+    const { client, sessionId, user } = await getRequestContext(request)
     const { data } = await client.getApplicationParameters(user)
     return NextResponse.json(data as object, {
       headers: setSession(sessionId),
     })
-  }
-  catch (error) {
-    return NextResponse.json([])
-  }
+  })
 }
