@@ -148,7 +148,7 @@ const Chat: FC<IChatProps> = ({
   }
 
   return (
-    <div className={cn(!feedbackDisabled && 'px-3.5', 'h-full')}>
+    <div className={cn(!feedbackDisabled && 'px-3.5', 'relative h-full')}>
       {/* Chat List */}
       <div className="h-full space-y-[30px]">
         {chatList.map((item) => {
@@ -176,8 +176,8 @@ const Chat: FC<IChatProps> = ({
       </div>
       {
         !isHideSendInput && (
-          <div className='fixed z-10 bottom-0 left-1/2 transform -translate-x-1/2 pc:ml-[122px] tablet:ml-[96px] mobile:ml-0 pc:w-[794px] tablet:w-[794px] max-w-full mobile:w-full px-3.5'>
-            <div className='p-[5.5px] max-h-[150px] bg-white border-[1.5px] border-gray-200 rounded-xl overflow-y-auto'>
+          <div className='sticky bottom-0 z-10 mt-6 pb-3'>
+            <div className='p-[5.5px] max-h-[150px] rounded-xl border-[1.5px] border-gray-200 bg-white/95 shadow-[0_12px_32px_rgba(15,23,42,0.08)] backdrop-blur overflow-y-auto'>
               {
                 visionConfig?.enabled && (
                   <>
